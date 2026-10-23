@@ -1,0 +1,79 @@
+:root {
+    --comic-blue: #35AEEA;
+    --comic-dark-blue: #13202B;
+
+    --comic-yellow: #FFD83D;
+    --comic-orange: #ff9f29;
+    --comic-red: #E8544F;
+
+    --comic-paper-white: #FFF7DF;
+    --comic-cream: #F5EEBB;
+
+    --comic-green: #32A873;
+    --comic-lightgreen: #55DD33;
+    --comic-purple: #7A5CF5;
+    --comic-lightpurple: #C4B5FD;; 
+
+    --comic-ink: #10191f;
+    --comic-ink-soft: #263944;
+
+    --page-width: 430px;
+
+    --comic-border: 3px solid var(--comic-ink);
+    --comic-shadow: 5px 5px 0 var(--comic-ink);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    background: var(--comic-blue);
+}
+
+body {
+    width: 100%;
+    min-height: 100svh;
+
+    background: var(--comic-blue);
+
+    
+
+    font-family: Arial, sans-serif;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+button,
+input,
+textarea {
+    font: inherit;
+}
+
+button {
+    color: inherit;
+}
+
+img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+}
+
+input,
+button {
+    border: 0;
+    outline: none;
+}
