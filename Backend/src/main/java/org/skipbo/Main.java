@@ -1,11 +1,12 @@
 package org.skipbo;
 
-import io.javalin.Javalin;
-import io.javalin.json.JavalinJackson;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.type.LogicalType;
+import io.javalin.Javalin;
+import io.javalin.http.staticfiles.Location;
+import io.javalin.json.JavalinJackson;
 import org.skipbo.handler.GlobalRoomWebSocketHandler;
 import org.skipbo.handler.RoomHandler;
 import org.skipbo.handler.SessionHandler;
@@ -18,6 +19,7 @@ import org.skipbo.websocket.GlobalRoomConnections;
 import org.skipbo.websocket.RoomConnections;
 
 import java.time.Duration;
+import java.util.Map;
 
 public class Main
 {
@@ -30,29 +32,103 @@ public class Main
 
         RoomConnections roomConnections = new RoomConnections();
         GlobalRoomConnections globalRoomConnections = new GlobalRoomConnections();
-        RoomService roomService = new RoomService(roomStore, playerStore, roomConnections, globalRoomConnections);
 
-        SessionHandler sessionHandler = new SessionHandler(sessionService, roomService);
+        RoomService roomService = new RoomService(
+                roomStore,
+                playerStore,
+                roomConnections,
+                globalRoomConnections
+        );
 
-        RoomHandler roomHandler = new RoomHandler(roomService, sessionService);
+        SessionHandler sessionHandler = new SessionHandler(
+                sessionService,
+                roomService
+        );
 
-        WebSocketHandler webSocketHandler = new WebSocketHandler(roomService, sessionService);
+        RoomHandler roomHandler = new RoomHandler(
+                roomService,
+                sessionService
+        );
 
-        GlobalRoomWebSocketHandler globalRoomWebSocketHandler = new GlobalRoomWebSocketHandler(roomService, globalRoomConnections);
+        WebSocketHandler webSocketHandler = new WebSocketHandler(
+                roomService,
+                sessionService
+        );
+
+        GlobalRoomWebSocketHandler globalRoomWebSocketHandler =
+                new GlobalRoomWebSocketHandler(
+                        roomService,
+                        globalRoomConnections
+                );
 
         Javalin app = Javalin.create(config ->
         {
             config.jsonMapper(createJsonMapper());
+
             config.bundledPlugins.enableDevLogging();
-            config.jetty.modifyWebSocketServletFactory(factory -> factory.setIdleTimeout(Duration.ofMinutes(15)));
+
+            config.jetty.modifyWebSocketServletFactory(
+                    factory -> factory.setIdleTimeout(Duration.ofMinutes(15))
+            );
+
+            config.staticFiles.add(staticFiles ->
+            {
+                staticFiles.hostedPath = "/_app/immutable";
+                staticFiles.directory = "/public/_app/immutable";
+                staticFiles.location = Location.CLASSPATH;
+                staticFiles.headers = Map.of(
+                        "Cache-Control", "public, max-age=31536000, immutable"
+                );
+            });
+
+            config.staticFiles.add(staticFiles ->
+            {
+                staticFiles.hostedPath = "/";
+                staticFiles.directory = "/public";
+                staticFiles.location = Location.CLASSPATH;
+            });
+
+            config.spaRoot.addFile(
+                    "/game",
+                    "/public/index.html",
+                    Location.CLASSPATH
+            );
+
+            config.spaRoot.addFile(
+                    "/waiting-lobby",
+                    "/public/index.html",
+                    Location.CLASSPATH
+            );
+
+            config.spaRoot.addFile(
+                    "/find-game",
+                    "/public/index.html",
+                    Location.CLASSPATH
+            );
+
+            config.spaRoot.addFile(
+                    "/host-game",
+                    "/public/index.html",
+                    Location.CLASSPATH
+            );
         });
 
         app.get("/api/me", sessionHandler::getPlayer);
 
-        app.post("/api/me/updateUsername", sessionHandler::updateUsername);
-        app.post("/api/me/updateAvatar", sessionHandler::updateAvatar);
+        app.post(
+                "/api/me/updateUsername",
+                sessionHandler::updateUsername
+        );
 
-        app.post("/api/rooms", roomHandler::createRoom);
+        app.post(
+                "/api/me/updateAvatar",
+                sessionHandler::updateAvatar
+        );
+
+        app.post(
+                "/api/rooms",
+                roomHandler::createRoom
+        );
 
         app.ws("/ws/rooms/{roomId}", ws ->
         {
@@ -69,18 +145,49 @@ public class Main
             ws.onError(globalRoomWebSocketHandler::onError);
         });
 
-        app.events(events -> events.serverStopped(roomService::close));
+        app.events(events ->
+                events.serverStopped(roomService::close)
+        );
+
         app.start(7070);
     }
 
     static JavalinJackson createJsonMapper()
     {
         JavalinJackson jsonMapper = new JavalinJackson();
-        jsonMapper.getMapper().disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
-        jsonMapper.getMapper().coercionConfigFor(LogicalType.Integer).setCoercion(CoercionInputShape.String, CoercionAction.Fail);
-        jsonMapper.getMapper().coercionConfigFor(LogicalType.Textual).setCoercion(CoercionInputShape.Integer, CoercionAction.Fail);
-        jsonMapper.getMapper().coercionConfigFor(LogicalType.Textual).setCoercion(CoercionInputShape.Float, CoercionAction.Fail);
-        jsonMapper.getMapper().coercionConfigFor(LogicalType.Textual).setCoercion(CoercionInputShape.Boolean, CoercionAction.Fail);
+
+        jsonMapper.getMapper().disable(
+                DeserializationFeature.ACCEPT_FLOAT_AS_INT
+        );
+
+        jsonMapper.getMapper()
+                .coercionConfigFor(LogicalType.Integer)
+                .setCoercion(
+                        CoercionInputShape.String,
+                        CoercionAction.Fail
+                );
+
+        jsonMapper.getMapper()
+                .coercionConfigFor(LogicalType.Textual)
+                .setCoercion(
+                        CoercionInputShape.Integer,
+                        CoercionAction.Fail
+                );
+
+        jsonMapper.getMapper()
+                .coercionConfigFor(LogicalType.Textual)
+                .setCoercion(
+                        CoercionInputShape.Float,
+                        CoercionAction.Fail
+                );
+
+        jsonMapper.getMapper()
+                .coercionConfigFor(LogicalType.Textual)
+                .setCoercion(
+                        CoercionInputShape.Boolean,
+                        CoercionAction.Fail
+                );
+
         return jsonMapper;
     }
 }

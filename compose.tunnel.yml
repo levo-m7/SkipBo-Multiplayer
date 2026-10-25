@@ -1,0 +1,25 @@
+services:
+  skipbo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    ports:
+      - "7070:7070"
+
+    restart: unless-stopped
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+
+    depends_on:
+      - skipbo
+
+    command:
+      - tunnel
+      - --no-autoupdate
+      - --url
+      - http://skipbo:7070
+
+    restart: unless-stopped
+

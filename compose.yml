@@ -1,0 +1,10 @@
+services:
+  skipbo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    ports:
+      - "7070:7070"
+
+    restart: unless-stopped
