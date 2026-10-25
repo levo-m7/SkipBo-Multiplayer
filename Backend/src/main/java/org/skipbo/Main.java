@@ -149,7 +149,7 @@ public class Main
                 events.serverStopped(roomService::close)
         );
 
-        app.start(7070);
+        app.start("0.0.0.0", 7070);
     }
 
     static JavalinJackson createJsonMapper()
