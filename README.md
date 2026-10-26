@@ -62,6 +62,13 @@ The URL is temporary and may change when the tunnel restarts. No router port for
 
 For local play, open **http://localhost:7070** in your browser.
 
+## Notes
+
+- All rooms, sessions, and game state are stored in memory and reset when the server restarts.
+- For LAN multiplayer, use the host device's local IP address with port `7070`.
+- Firewall or WSL port forwarding may be necessary depending on your network setup.
+- Cloudflare Quick Tunnels are intended for temporary testing. Anyone with the public link can access the game while the tunnel is running.
+
 ## Screenshots
 
 ### Homepage
@@ -79,12 +86,3 @@ For local play, open **http://localhost:7070** in your browser.
 ### Mobile Gameplay
 
 <img src="pics/Picture4.png" alt="SkipBo mobile gameplay on iPhone" width="320">
-
-## Notes
-
-- All rooms, sessions, and game state are stored in memory and reset when the server restarts.
-- For LAN multiplayer, use the host device's local IP address with port `7070`.
-- Firewall or WSL port forwarding may be necessary depending on your network setup.
-- Cloudflare Quick Tunnels are intended for temporary testing. Anyone with the public link can access the game while the tunnel is running.
-
-  
