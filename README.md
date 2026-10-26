@@ -1,6 +1,8 @@
 
 # SkipBo Multiplayer
 
+![SkipBo Browser Gameplay](pics/Picture3.png)
+
 ## Description
 
 A small, simple, in-memory SkipBo multiplayer game you can self-host and play with your friends in your browser.
